@@ -46,7 +46,6 @@ function (fac::DiagonalMapFactory)(self::AbsHyperComplex, p::Int, i::Tuple)
     comps = []
     for j1 in 1:length(dom_inds)
         for j2 in 1:length(codom_inds)
-        	@show dom_inds[j1],codom_inds[j2]
             proj = projs[j1]
             dom = codomain(proj)
             inj = injs[j2]
@@ -56,9 +55,7 @@ function (fac::DiagonalMapFactory)(self::AbsHyperComplex, p::Int, i::Tuple)
             	dom_power = dom_inds[j1][1]
             	comp = Oscar.tensor_pure_function(codom)
                 dom_factors = get_attribute(dom, :tensor_product)
-                @show dom_factors
                 codom_factors = get_attribute(codom, :tensor_product)
-                @show codom_factors
                 if dom_power == 0
         	    	wdg = hom(dom_factors[1], codom_factors[1], [dh])
         	    else

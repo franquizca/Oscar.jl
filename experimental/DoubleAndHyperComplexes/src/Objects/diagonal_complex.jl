@@ -53,7 +53,6 @@ function (fac::DiagonalMapFactory)(self::AbsHyperComplex, p::Int, i::Tuple)
             codom = domain(inj)
             disc = (collect(codom_inds[j2]) - collect(dom_inds[j1]))[2]
             if disc == 0
-            	@show "there is wedging to do"
             	dom_power = dom_inds[j1][1]
             	comp = Oscar.tensor_pure_function(codom)
                 dom_factors = get_attribute(dom, :tensor_product)

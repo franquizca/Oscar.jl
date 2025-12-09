@@ -18,7 +18,6 @@ struct SimplifiedChainFactory{ChainType} <: HyperComplexChainFactory{ChainType}
 end
 
 function (fac::SimplifiedChainFactory)(d::AbsHyperComplex, Ind::Tuple)
-  @show "producing simplified entry $Ind"
   i = first(Ind)
   c = original_complex(fac)
 
@@ -73,10 +72,7 @@ function (fac::SimplifiedChainFactory)(d::AbsHyperComplex, Ind::Tuple)
     # Simplify for the outgoing morphism
     A = sparse_matrix(outgoing)
     find_pivot = nothing
-    @show fac.pivots
     if !isnothing(fac.pivots)
-      @show fac.pivots
-      @show i
       find_pivot = get(fac.pivots::Dict, i, nothing)
     end
     S, Sinv, T, Tinv, ind = _simplify_matrix!(A; find_pivot=isnothing(fac.pivots) ? nothing : get(fac.pivots, i, nothing))
@@ -185,10 +181,7 @@ function (fac::SimplifiedChainFactory)(d::AbsHyperComplex, Ind::Tuple)
     # Simplify for the incoming morphism
     A = sparse_matrix(incoming)
     find_pivot = nothing
-    @show fac.pivots
     if !isnothing(fac.pivots)
-      @show fac.pivots
-      @show prev
       find_pivot = get(fac.pivots::Dict, prev, nothing)
     end
     S, Sinv, T, Tinv, ind = _simplify_matrix!(A; find_pivot=isnothing(fac.pivots) ? nothing : get(fac.pivots, prev, nothing))
@@ -583,7 +576,6 @@ function simplify(
     c::AbsHyperComplex{ChainType, MorphismType};
     pivots::Union{Nothing, Dict{Int, Any}}=nothing
   ) where {ChainType, MorphismType}
-  @show "simplifying complex with $pivots"
   @assert dim(c) == 1 "complex must be one-dimensional"
   chain_fac = SimplifiedChainFactory(c; pivots)
   mor_fac = SimplifiedMapFactory(c)
@@ -632,7 +624,6 @@ unit in the `base_ring` of `A` to be used as the next pivot element,
 or `nothing` if no suitable pivot was found.
 """
 function _simplify_matrix!(A::SMat; find_pivot=nothing)
-  @show find_pivot
   R = base_ring(A)
   m = nrows(A)
   n = ncols(A)
@@ -862,14 +853,12 @@ zero-generators or removing the i-th component of all vectors if those are
 reduced by a relation.
 """
 function simplify(M::SubquoModule; pivot=nothing)
-  @show "simplifying subquotient with $pivot"
   #res, aug = free_resolution(SimpleFreeResolution, M)
   pres = presentation(M)
   aug = map(pres, 0)
   res = SimpleComplexWrapper(pres[0:1])
   prep_pivot = nothing
   if !isnothing(pivot)
-    @show "strategy is not nothing"
     prep_pivot = Dict{Int, Any}(1=>pivot)
   end
   simp = simplify(res; pivots=prep_pivot)

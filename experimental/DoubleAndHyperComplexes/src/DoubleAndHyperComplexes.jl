@@ -13,6 +13,10 @@ include("Objects/new_complex_template.jl")
 include("Objects/linear_strands.jl")
 include("Objects/eagon_northcott_complex.jl")
 include("Objects/induced_ENC.jl")
+include("Objects/contraction_complex.jl")
+include("Objects/wedge_complex.jl")
+include("Objects/multiplication_complex.jl")
+include("Objects/diagonal_complex.jl")
 
 include("Morphisms/Types.jl")
 include("Objects/cartan_eilenberg_resolution.jl")
@@ -43,7 +47,4 @@ include("base_change.jl")
 # Geometric functionality building on the homological algebra in this package.
 include("DerivedPushforward.jl")
 include("SpectralSequences.jl")
-
-include("Objects/diagonal_complex.jl")
-include("Objects/contraction_complex.jl")
 

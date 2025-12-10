@@ -50,7 +50,7 @@ end
     map_fac = MultiplicationMapFactory()
 
     # Assuming d is the dimension of the new complex
-    internal_complex = HyperComplex(1, chain_fac, map_fac, [:chain]; lower_bounds = [0], upper_bounds = [1])
+    internal_complex = HyperComplex(1, chain_fac, map_fac, [:cochain]; lower_bounds = [0], upper_bounds = [1])
     # Assuming that ChainType and MorphismType are provided by the input
     return new{ModuleFP, ModuleFPHom}(internal_complex)
   end

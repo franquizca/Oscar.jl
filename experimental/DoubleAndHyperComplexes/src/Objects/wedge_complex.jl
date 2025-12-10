@@ -25,9 +25,9 @@ function (fac::WedgeChainFactory)(self::AbsHyperComplex, I::Tuple)
     i = I[1]
     R = free_module(base_ring(M),1)
     n = ngens(M)
-    i == n && return R
-    i == n-1 && return M
-    return exterior_power(M,n-i)[1]
+    i == 0 && return R
+    i == 1 && return M
+    return exterior_power(M,i)[1]
 end
 
 function can_compute(fac::WedgeChainFactory, self::AbsHyperComplex, I::Tuple)
@@ -53,12 +53,12 @@ function (fac::WedgeMapFactory)(self::AbsHyperComplex, p::Int, I::Tuple)
     w = fac.w
     i = I[1]
     dom = self[i]
-    codom = self[i-1]
+    codom = self[i+1]
     M = self[1]
     n = ngens(M)
-    i == n && return hom(dom,codom,[w])
+    i == 0 && return hom(dom,codom,[w])
     wedge = Oscar.wedge_pure_function(codom)
-    i == n-1 && return hom(dom,codom, [wedge(Tuple([w,v])) for v in gens(dom)])
+    i == 1 && return hom(dom,codom, [wedge(Tuple([w,v])) for v in gens(dom)])
     decomp = Oscar.wedge_generator_decompose_function(dom)
     return hom(dom,codom,[wedge(Tuple(vcat([w],collect(decomp(phi))))) for phi in gens(dom)])
 end
@@ -68,7 +68,7 @@ function can_compute(fac::WedgeMapFactory, self::AbsHyperComplex, p::Int, I::Tup
     fac = chain_factory(self)
     M = parent(fac.w)
     i = I[1]
-    return (ngens(M) >= i) && (i > 0)
+    return (ngens(M) > i) && (i >= 0)
 end
 
 ### The concrete struct
@@ -89,3 +89,7 @@ end
 
 ### Implementing the AbsHyperComplex interface via `underlying_complex`
 underlying_complex(c::WedgeComplex) = c.internal_complex
+
+function wedge_as_element(c::WedgeComplex)
+	return chain_factory(c).w
+end

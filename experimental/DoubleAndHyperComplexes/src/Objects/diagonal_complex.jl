@@ -45,7 +45,7 @@ function (fac::DiagonalMapFactory)(self::AbsHyperComplex, p::Int, i::Tuple)
   dh = Oscar.wedge_as_element(fac.W)
   M = fac.C[1]
   R1 = fac.C[0]
-  p == 2 && (i == (0,1) && return hom(self[0,1], R1, [h*gens(R1)]))
+  p == 2 && (i == (0,1) && return hom(self[0,1], R1, [h*w for w in gens(R1)]))
   p == 2 && (!(i[2] == 1) && return map(T,i[1] - i[2] + 1))
   dom_inds = Oscar.indices_in_summand(T,i[1] - i[2] + 1)
   projs = map(t -> Oscar.projection(T,t),dom_inds)
@@ -57,17 +57,17 @@ function (fac::DiagonalMapFactory)(self::AbsHyperComplex, p::Int, i::Tuple)
   		dom_iso = get_attribute(dom, :tensor_product)[1]
   		iso = hom(dom,dom_iso,[w for w in gens(dom_iso)])
   		if dom_inds[j][1] == i[1]
-  			mult_map = hom(dom_iso,codom,[h*w for w in gens(codom)])
+  			mult_map = hom(dom_iso,codom,[-h*w for w in gens(codom)])
   		elseif dom_inds[j][1] == 0
   			mult_map = hom(dom_iso,codom,[dh])
   		else
   			mult_map = wedge_multiplication_map(dom_iso,codom,dh)
   		end
-  		push!(comps,compose(iso,mult_map))
+  		push!(comps,compose(projs[j],compose(iso,mult_map)))
   	end
   else
 	  xi = fac.xi
-  	codom_inds = Oscar.indices_in_summand(T,i[1] - i[2] + 2)
+  	codom_inds = Oscar.indices_in_summand(T,i[1] - i[2])
    	injs = map(t -> Oscar.injection(T,t),codom_inds)
    	xi = map(fac.C,1)
    	num = xi(dh)[1]
@@ -86,6 +86,8 @@ function (fac::DiagonalMapFactory)(self::AbsHyperComplex, p::Int, i::Tuple)
     	    	mult_map = hom(dom_factors[1],codom_factors[1],[special_factor*w for w in gens(codom_factors[1])])
     		  else
     		  	xi = map(fac.C,dom_inds[j1][1])
+    		  	codomain_iso = hom(codomain(xi), codom_factors[1],[w for w in gens(codom_factors[1])])
+    		  	xi = compose(xi,codomain_iso)
     		  	sgn = (-1)^(dom_inds[j1][1] - (i[1] - i[2])+1)
     		  	mult_map = hom(dom_factors[1],codom_factors[1],[sgn*xi(w) for w in gens(fac.C[dom_inds[j1][1]])])
     		  end
@@ -97,18 +99,20 @@ function (fac::DiagonalMapFactory)(self::AbsHyperComplex, p::Int, i::Tuple)
     	  end
     	end
     end
-    dom = domain(projs[1])
     codom = codomain(injs[1])
   end
+  dom = domain(projs[1])
   return hom(dom,codom,[sum(map(f -> f(w),comps)) for w in gens(dom)])
 end
 
 function can_compute(fac::DiagonalMapFactory, self::AbsHyperComplex, p::Int, i::Tuple)
   # Deciding whether the outgoing map at index i in the p-th direction can be produced
   fac = chain_factory(self)
-  i[2] == 0 && return (p == 1) && (i[1] in range(fac.C))
-  p == 1 && return (i[1] - i[2] + 1 > 0) && ((i[1] - i[2] + 1) in range(fac.T)) && (i[2] > 0)
-  return (i[2] > 0) && ((i[1] - i[2]+ 1) in range(fac.T)) && (i[1] - i[2] + 1 < range(fac.T)[1])
+  i[2] == 0 && return ((p == 1) && (i[1] in range(fac.C)))
+  in_diagonal_line = i[1] - i[2] + 1
+  in_diagonal_line == 0 && return p == 2
+  in_diagonal_line > 0 && return (i[1] in range(fac.C))
+  return false
 end
 
 ### The concrete struct
